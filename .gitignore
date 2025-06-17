@@ -25,5 +25,5 @@ yarn-error.log*
 # idea file
 .idea/
 .public/
-yarn.lock
+
 
