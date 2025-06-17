@@ -1,6 +1,8 @@
+// src/components/User/RegisterPage.tsx
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom'; // Import Link and useNavigate
+import { Link, useNavigate } from 'react-router-dom';
+import api from '../../services/api'; // Import your configured API instance
 
 const RegisterPage: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -19,7 +21,7 @@ const RegisterPage: React.FC = () => {
     });
     const [message, setMessage] = useState<string | null>(null);
     const [isError, setIsError] = useState<boolean>(false);
-    const navigate = useNavigate(); // Initialize useNavigate
+    const navigate = useNavigate();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -27,17 +29,16 @@ const RegisterPage: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setMessage(null); // Clear previous messages
+        setMessage(null);
         setIsError(false);
 
         try {
-            // UPDATE THIS: Use the correct URL for your API
-            const response = await axios.post('http://localhost:5000/api/Auth/register', formData);
+            // Using the 'api' instance for the POST request
+            // The full URL will be 'https://localhost:7055/api/Auth/register'
+            const response = await api.post('Auth/register', formData);
 
             if (response.status === 200) {
                 setMessage(response.data || 'Registration successful!');
-                // Redirect to the Product List page after successful registration
-                // Adding a small delay to show the success message
                 setTimeout(() => {
                     navigate('/products');
                 }, 1500);
@@ -125,7 +126,6 @@ const RegisterPage: React.FC = () => {
             )}
             <p style={{ marginTop: '20px', textAlign: 'center' }}>
                 Already have an account?{' '}
-                {/* Use Link component for proper React Router navigation */}
                 <Link to="/login" style={{ color: '#007bff', textDecoration: 'none' }}>Login here</Link>
             </p>
         </div>
