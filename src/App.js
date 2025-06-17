@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 import ProductList from "./components/Product/ProductList.tsx";
 import AddProduct from "./components/Product/AddProduct.tsx";

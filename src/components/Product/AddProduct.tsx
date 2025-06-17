@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import api from "../../services/api";
 import "styles/Form.css";
+import axios from "axios";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 interface Productioner {
     id: number;
@@ -16,7 +18,9 @@ const AddProduct: React.FC = () => {
     const [idProductioner, setIdProductioner] = useState<number | null>(null);
     const [productioners, setProductioners] = useState<Productioner[]>([]);
     const [error, setError] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null); // Added for success message
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+    const navigate = useNavigate(); // Initialize useNavigate hook
 
     useEffect(() => {
         api
@@ -28,15 +32,13 @@ const AddProduct: React.FC = () => {
                 }
             })
             .catch(() => setError("Failed to fetch productioners"));
-    }, []); // <--- Empty array here
-
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
-        setSuccessMessage(null); // Clear previous success message
+        setSuccessMessage(null);
 
-        // Basic validation
         if (!name || !description || !category || !brand || price <= 0 || idProductioner === null) {
             setError("Please fill in all fields and select a valid price and productioner.");
             return;
@@ -52,16 +54,26 @@ const AddProduct: React.FC = () => {
                 idProductioner,
             });
             setSuccessMessage("Product added successfully!");
-            // Optionally, clear the form after successful submission
             setName("");
             setDescription("");
             setCategory("");
             setBrand("");
             setPrice(0);
-            // You might want to reset idProductioner or keep it as is
-            // setIdProductioner(null);
-        } catch (err) {
-            setError("Failed to add product. Please try again.");
+            setIdProductioner(productioners.length > 0 ? productioners[0].id : null);
+            // Optionally, navigate back to product list after a short delay
+            // setTimeout(() => navigate('/'), 2000);
+        } catch (err: any) {
+            if (axios.isAxiosError(err) && err.response) {
+                if (err.response.status === 403) {
+                    setError("You are not authorized to add products. Only administrators can perform this action.");
+                } else if (err.response.status === 401) {
+                    setError("You need to be logged in to perform this action, or your session is invalid.");
+                } else {
+                    setError(err.response.data.message || "Failed to add product. Please try again.");
+                }
+            } else {
+                setError("An unexpected error occurred. Failed to add product.");
+            }
             console.error("Error adding product:", err);
         }
     };
@@ -124,8 +136,8 @@ const AddProduct: React.FC = () => {
                         value={price}
                         onChange={(e) => setPrice(Number(e.target.value))}
                         placeholder="Product Price"
-                        min="0.01" // Ensure price is positive
-                        step="0.01" // Allow decimal values
+                        min="0.01"
+                        step="0.01"
                         required
                     />
                 </div>
@@ -145,106 +157,21 @@ const AddProduct: React.FC = () => {
                         ))}
                     </select>
                 </div>
-                <button type="submit" className="form-submit-button">
-                    Add Product
-                </button>
+                <div className="form-actions"> {/* New div for buttons */}
+                    <button type="submit" className="form-submit-button">
+                        Add Product
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => navigate('/products')}
+                        className="form-back-button"
+                    >
+                        Back to Products
+                    </button>
+                </div>
             </form>
         </div>
     );
 };
 
 export default AddProduct;
-
-// import React, { useState, useEffect } from "react";
-// import api from "../../services/api";
-//
-// interface Productioner {
-//     id: number;
-//     name: string;
-// }
-//
-// const AddProduct: React.FC = () => {
-//     const [name, setName] = useState("");
-//     const [description, setDescription] = useState("");
-//     const [category, setCategory] = useState("");
-//     const [brand, setBrand] = useState("");
-//     const [price, setPrice] = useState<number>(0);
-//     const [idProductioner, setIdProductioner] = useState<number | null>(null);
-//     const [productioners, setProductioners] = useState<Productioner[]>([]);
-//     const [error, setError] = useState<string | null>(null);
-//
-//     useEffect(() => {
-//         api
-//             .get("/productioners")
-//             .then((response) => setProductioners(response.data))
-//             .catch(() => setError("Failed to fetch productioners"));
-//     }, []);
-//
-//     const handleSubmit = async (e: React.FormEvent) => {
-//         e.preventDefault();
-//         setError(null);
-//
-//         try {
-//             await api.post("/products", {
-//                 name,
-//                 description,
-//                 category,
-//                 brand,
-//                 price,
-//                 idProductioner,
-//             });
-//             alert("Product added successfully!");
-//         } catch {
-//             setError("Failed to add product");
-//         }
-//     };
-//
-//     return (
-//         <div>
-//             <h1>Add Product</h1>
-//             {error && <p style={{ color: "red" }}>{error}</p>}
-//             <form onSubmit={handleSubmit}>
-//                 <input
-//                     value={name}
-//                     onChange={(e) => setName(e.target.value)}
-//                     placeholder="Name"
-//                 />
-//                 <input
-//                     value={description}
-//                     onChange={(e) => setDescription(e.target.value)}
-//                     placeholder="Description"
-//                 />
-//                 <input
-//                     value={category}
-//                     onChange={(e) => setCategory(e.target.value)}
-//                     placeholder="Category"
-//                 />
-//                 <input
-//                     value={brand}
-//                     onChange={(e) => setBrand(e.target.value)}
-//                     placeholder="Brand"
-//                 />
-//                 <input
-//                     type="number"
-//                     value={price}
-//                     onChange={(e) => setPrice(Number(e.target.value))}
-//                     placeholder="Price"
-//                 />
-//                 {/* <select
-//           value={idProductioner ?? ""}
-//           onChange={(e) => setIdProductioner(Number(e.target.value))}
-//         >
-//           <option value="">Select a productioner</option>
-//           {productioners.map((prod) => (
-//             <option key={prod.id} value={prod.id}>
-//               {prod.name}
-//             </option>
-//           ))}
-//         </select> */}
-//                 <button type="submit">Add Product</button>
-//             </form>
-//         </div>
-//     );
-// };
-//
-// export default AddProduct;

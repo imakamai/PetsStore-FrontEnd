@@ -1,8 +1,7 @@
-// src/components/User/LoginPage.tsx
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
-import api from '../../services/api'; // Import your configured API instance
+import api from '../../services/api';
 
 const LoginPage: React.FC = () => {
     const [username, setUsername] = useState<string>('');
@@ -17,8 +16,6 @@ const LoginPage: React.FC = () => {
         setIsError(false);
 
         try {
-            // Using the 'api' instance for the POST request
-            // The full URL will be 'https://localhost:7055/api/Auth/login'
             const response = await api.post('Auth/login', {
                 username,
                 password,
@@ -27,12 +24,15 @@ const LoginPage: React.FC = () => {
             if (response.status === 200) {
                 setMessage(response.data.Message || 'Login successful!');
                 localStorage.setItem('user', JSON.stringify(response.data));
-                navigate('/products'); // Redirects to /products after successful login
+                localStorage.setItem('userId', response.data.UserId);
+                localStorage.setItem('userRole', response.data.Role);
+                localStorage.setItem('isAdmin', response.data.IsAdmin);
+
+                navigate('/products');
             }
         } catch (error: any) {
             setIsError(true);
             if (axios.isAxiosError(error) && error.response) {
-                // Check if error.response.data exists and has a Message property, or use raw data
                 setMessage(error.response.data.Message || error.response.data || 'Login failed. Please try again.');
             } else if (error.request) {
                 setMessage('No response from server. Please check your network connection.');

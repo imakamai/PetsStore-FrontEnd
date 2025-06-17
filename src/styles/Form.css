@@ -112,3 +112,26 @@
 .form-link-text a:hover {
     text-decoration: underline;
 }
+
+.form-back-button {
+    background-color: #6c757d; /* A neutral gray */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.form-back-button:hover {
+    background-color: #5a6268; /* Darker gray on hover */
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+    margin-top: 25px;
+}
