@@ -1,33 +1,34 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom'; // Import Link and useNavigate
+import { Link, useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 
 const LoginPage: React.FC = () => {
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [message, setMessage] = useState<string | null>(null);
     const [isError, setIsError] = useState<boolean>(false);
-    const navigate = useNavigate(); // Initialize useNavigate
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setMessage(null); // Clear previous messages
+        setMessage(null);
         setIsError(false);
 
         try {
-            // UPDATE THIS: Use the correct URL for your API
-            const response = await axios.post('http://localhost:5000/api/Auth/login', {
+            const response = await api.post('Auth/login', {
                 username,
                 password,
             });
 
             if (response.status === 200) {
                 setMessage(response.data.Message || 'Login successful!');
-                // Store user data (e.g., in local storage)
                 localStorage.setItem('user', JSON.stringify(response.data));
+                localStorage.setItem('userId', response.data.UserId);
+                localStorage.setItem('userRole', response.data.Role);
+                localStorage.setItem('isAdmin', response.data.IsAdmin);
 
-                // Redirect the user to the Product List page
-                navigate('/products'); // Redirects to /products after successful login
+                navigate('/products');
             }
         } catch (error: any) {
             setIsError(true);
@@ -82,7 +83,6 @@ const LoginPage: React.FC = () => {
             )}
             <p style={{ marginTop: '20px', textAlign: 'center' }}>
                 Don't have an account?{' '}
-                {/* Use Link component for proper React Router navigation */}
                 <Link to="/register" style={{ color: '#007bff', textDecoration: 'none' }}>Register here</Link>
             </p>
         </div>
@@ -90,6 +90,7 @@ const LoginPage: React.FC = () => {
 };
 
 export default LoginPage;
+
 
 
 
